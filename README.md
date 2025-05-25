@@ -45,31 +45,7 @@ The lab is structured through progressive phases, guiding you from foundational 
 
 ## 🔬 Lab Structure & Phases
 
-VAPOR Lab is organized into distinct phases, each building upon the last:
-
-* **Phase 1: Foundational Local Setup (`Phase-1.md`)**
-    * Setting up the Kali Linux environment (or similar).
-    * Installing essential tools: Python, Git, Conda, Docker, VS Code.
-    * Configuring the development workspace.
-* **Phase 2: Core AI Security Learning Modules (`Phase-2.md`)**
-    * **Traditional ML Security:** Data poisoning, evasion attacks, model integrity, basic MLOps security with DVC and MLflow.
-    * **LLM Security:** Deep dive into OWASP LLM Top 10 vulnerabilities, advanced prompt injection, practicing with local LLMs (Ollama) and PortSwigger labs.
-* **Phase 3: Full-Stack Application & Local Orchestration (`Phase-3.md`)**
-    * Developing a "Fake Loan Site" frontend (HTML, CSS, JS).
-    * Building a backend AI model API (Flask/FastAPI).
-    * Dockerizing both frontend and backend.
-    * Orchestrating the multi-container application locally using Docker Compose.
-* **Phase 4: Cloud Integration & DevOps Practices (`Phase-4.md`)**
-    * Integrating with AWS Free Tier services (EC2, S3, ECR, Lambda, API Gateway).
-    * Gaining hands-on experience with Kubernetes (K8s) using Minikube/Kind.
-    * Implementing a CI/CD pipeline using GitHub Actions for automated building, testing, and deployment.
-* **Phase 5: Advanced AI Hacking & Research Integration (`Phase-5.md`)**
-    * Incorporating cutting-edge techniques and findings from AI security researchers and bug bounty hunters.
-    * Applying holistic AI assessment methodologies.
-* **Phase 6 (Future):** *(Outline for potential future expansion)*
-    * Advanced MLOps Security.
-    * Federated Learning Security.
-    * Real-world AI incident case studies and replications.
+VAPOR Lab is a work-in-progress...  
 
 ## 🚀 Getting Started
 
