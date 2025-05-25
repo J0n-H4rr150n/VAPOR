@@ -12,7 +12,7 @@
 
      .        .       * .        .         .       * .        .         .
   .         .      .        .         .      .        .         .     *
-      .      .   Vulnerable AI Penetration & Operations Research   .     .
+      .     Vulnerable AI Penetration & Operations Research      .     .
  .        .      .        .         .      .        .         .      .
 ```  
 ---
