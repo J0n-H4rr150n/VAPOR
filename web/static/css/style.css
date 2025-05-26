@@ -1,9 +1,7 @@
-/* VAPOR Lab - style.css - v1.2.0 */
+/* VAPOR Lab - style.css - v1.2.1 */
 /* Date: May 26, 2025 */
 /* Changelog:
-    - Removed styles for full-width .breadcrumb-container.
-    - Added styles for .breadcrumb-bar within .main-content.
-    - Removed all CSS comments.
+    - Added styles for .url-message-display for the XSS vector.
 */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,37 +43,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .main-content::-webkit-scrollbar-track { background: #f4f7f9; }
 .main-content::-webkit-scrollbar-thumb { background-color: #bdc3c7; border-radius: 4px; border: 2px solid #f4f7f9; }
 
+/* Styles for the URL message display (XSS vector) */
+.url-message-display {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #f0c36d; /* Warning yellow */
+    background-color: #f9f2e4; /* Light yellow */
+    color: #c09853; /* Darker yellow for text */
+    border-radius: 4px;
+    word-wrap: break-word; /* Ensure long payloads wrap */
+}
+.url-message-display.hidden {
+    display: none;
+}
+
 .breadcrumb-bar {
     background-color: #f8f9fa;
-    padding: 8px 0px; /* Adjusted padding */
+    padding: 8px 0px;
     border-bottom: 1px solid #dee2e6;
     font-size: 0.9em;
     color: #495057;
-    margin-bottom: 15px; /* Space below breadcrumbs */
+    margin-bottom: 15px;
     border-radius: 4px;
 }
-.breadcrumb-item {
-    display: inline;
-}
-.breadcrumb-item a {
-    color: #007bff;
-    text-decoration: none;
-}
-.breadcrumb-item a:hover {
-    text-decoration: underline;
-}
-.breadcrumb-item::after {
-    content: ' / ';
-    padding: 0 5px;
-    color: #6c757d;
-}
-.breadcrumb-item:last-child::after {
-    content: '';
-}
-.breadcrumb-item.active {
-    color: #212529;
-    font-weight: normal;
-}
+.breadcrumb-item { display: inline; }
+.breadcrumb-item a { color: #007bff; text-decoration: none; }
+.breadcrumb-item a:hover { text-decoration: underline; }
+.breadcrumb-item::after { content: ' / '; padding: 0 5px; color: #6c757d; }
+.breadcrumb-item:last-child::after { content: ''; }
+.breadcrumb-item.active { color: #212529; font-weight: normal; }
 
 .main-content h1 { margin-bottom: 15px; color: #2c3e50; font-size: 1.6em; }
 .main-content h2 { margin-top: 20px; margin-bottom: 10px; color: #34495e; font-size: 1.3em; border-bottom: 1px solid #ecf0f1; padding-bottom: 5px; }
@@ -92,14 +88,7 @@ tr:hover { background-color: #e8f4fd; }
 .form-group input[type="text"],
 .form-group input[type="url"],
 .form-group input[type="number"],
-.form-group textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    font-size: 0.95em;
-    box-sizing: border-box;
-}
+.form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.95em; box-sizing: border-box; }
 .form-group textarea { min-height: 80px; resize: vertical; }
 
 button.primary, input[type="submit"].primary { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.2s ease; }
