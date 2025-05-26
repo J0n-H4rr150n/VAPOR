@@ -121,7 +121,7 @@ Install recommended extensions within VS Code: Python (Microsoft), Pylance, Jupy
 
 ### A. LLM Prompt Injection Tests
 
-1.  Navigate to the `Phase-2-Core-AI-Security/LLM-Attack-Lab/prompt_injection_tests/` directory (or your equivalent).
+1.  Navigate to the `prompt_injection_tests/` directory (or your equivalent).
 2.  Make the test scripts executable:
     
         chmod +x *.sh
@@ -136,7 +136,7 @@ Install recommended extensions within VS Code: Python (Microsoft), Pylance, Jupy
 ### B. Traditional ML Model Training & Analysis (Jupyter Notebooks)
 
 1.  Activate the Conda environment: `conda activate vapor_lab_env`.
-2.  Navigate to the `Phase-2-Core-AI-Security/Traditional-ML-Security/` directory (or your equivalent).
+2.  Navigate to the `notebooks/` directory (or your equivalent).
 3.  Start JupyterLab:
     
         jupyter lab
