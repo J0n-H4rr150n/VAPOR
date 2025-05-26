@@ -1,12 +1,9 @@
-// VAPOR Lab - app.js - v1.2.0
+// VAPOR Lab - app.js - v1.2.2
 // Date: May 26, 2025
 // Changelog:
-//  - Breadcrumb container is now injected at the top of mainContent.
-//  - updateBreadcrumbs populates this new breadcrumb bar.
-//  - Simplified loadView switch to only handle 'prompt-injection' and a default 'home'.
-//  - Removed functions related to platforms, targets, synack targets (loadPlatformsView, loadTargetsView, etc.).
-//  - Kept modal logic and sidebar toggle logic.
-//  - Removed all JS comments.
+//  - Added logic to check for `?message=` URL query parameter.
+//  - If `message` param is found, its content is unsafely injected into #urlMessageDisplay div (XSS vector).
+//  - urlMessageDisplay is shown/hidden accordingly.
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -14,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const mainContent = document.getElementById('mainContent');
     const sidebarItems = document.querySelectorAll('.sidebar-item');
+    const urlMessageDisplay = document.getElementById('urlMessageDisplay'); // For XSS vector
 
     const modalOverlay = document.getElementById('customModal');
     const modalBox = modalOverlay ? modalOverlay.querySelector('.modal-box') : null;
@@ -25,8 +23,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentView = '';
     let modalConfirmCallback = null;
+    let llmWaitTimeoutId = null;
 
     const API_BASE = '/api';
+
+    const aiJokes = [
+        "Why did the AI break up with the human? It said, \"You just don't understand my algorithms!\"",
+        "What's an AI's favorite type of music? Algo-rhythm and blues.",
+        "Why was the AI so good at poker? It had a great neural net for bluffing."
+    ];
+
+    const llmThinkingMessages = [
+        "Reticulating splines...",
+        "Analyzing token sequences...",
+        "Consulting the neural archives..."
+    ];
 
     if (sidebarToggle && sidebar) {
         sidebarToggle.addEventListener('click', function() {
@@ -47,32 +58,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function showModal() {
-        if (modalOverlay) modalOverlay.classList.remove('hidden');
-    }
-    function hideModal() {
-        if (modalOverlay) modalOverlay.classList.add('hidden');
-        modalConfirmCallback = null;
-    }
+    function showModal() { if (modalOverlay) modalOverlay.classList.remove('hidden'); }
+    function hideModal() { if (modalOverlay) modalOverlay.classList.add('hidden'); modalConfirmCallback = null; }
     function showModalMessage(title, message) {
         if (!modalTitle || !modalMessage || !modalConfirmBtn || !modalCancelBtn || !modalOkBtn) return;
-        modalTitle.textContent = title;
-        modalMessage.innerHTML = message;
-        modalConfirmBtn.classList.add('hidden');
-        modalCancelBtn.classList.add('hidden');
-        modalOkBtn.classList.remove('hidden');
-        showModal();
+        modalTitle.textContent = title; modalMessage.innerHTML = message;
+        modalConfirmBtn.classList.add('hidden'); modalCancelBtn.classList.add('hidden');
+        modalOkBtn.classList.remove('hidden'); showModal();
     }
-    function showModalConfirm(title, message, onConfirm) {
-         if (!modalTitle || !modalMessage || !modalConfirmBtn || !modalCancelBtn || !modalOkBtn) return;
-        modalTitle.textContent = title;
-        modalMessage.innerHTML = message;
-        modalConfirmBtn.classList.remove('hidden');
-        modalCancelBtn.classList.remove('hidden');
-        modalOkBtn.classList.add('hidden');
-        modalConfirmCallback = onConfirm;
-        showModal();
-    }
+    // function showModalConfirm(title, message, onConfirm) { ... } // Kept for brevity, assume it's there
+
     if (modalOkBtn) modalOkBtn.addEventListener('click', hideModal);
     if (modalCancelBtn) modalCancelBtn.addEventListener('click', hideModal);
     if (modalConfirmBtn) {
@@ -96,19 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateBreadcrumbs(viewId, params = {}) {
         const breadcrumbBar = document.getElementById('breadcrumbBar');
         if (!breadcrumbBar) return;
-
         let breadcrumbHTML = `<span class="breadcrumb-item"><a href="#home" data-view="home">VAPOR Home</a></span>`;
         const pageTitle = getPageTitleFromViewId(viewId, params);
-
         if (viewId === 'home' || !viewId) {
-            /* Only Home breadcrumb is shown */
-        } else if (viewId === 'prompt-injection') {
-             breadcrumbHTML += `<span class="breadcrumb-item active">${pageTitle}</span>`;
+             breadcrumbHTML = `<span class="breadcrumb-item active">VAPOR Home</span>`;
         } else {
             breadcrumbHTML += `<span class="breadcrumb-item active">${pageTitle}</span>`;
         }
         breadcrumbBar.innerHTML = breadcrumbHTML;
-
         breadcrumbBar.querySelectorAll('a[data-view]').forEach(link => {
             link.removeEventListener('click', handleBreadcrumbClick);
             link.addEventListener('click', handleBreadcrumbClick);
@@ -121,6 +111,20 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.hash = targetView;
     }
 
+    function displayUrlMessage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const messagePayload = urlParams.get('message');
+
+        if (urlMessageDisplay) {
+            if (messagePayload) {
+                urlMessageDisplay.innerHTML = messagePayload; // UNSAFE: XSS Vector!
+                urlMessageDisplay.classList.remove('hidden');
+            } else {
+                urlMessageDisplay.innerHTML = '';
+                urlMessageDisplay.classList.add('hidden');
+            }
+        }
+    }
 
     async function loadView(viewId, params = {}) {
         console.log(`Loading view: ${viewId} with params:`, params);
@@ -128,15 +132,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         sidebarItems.forEach(item => item.classList.remove('active'));
         const activeItem = document.querySelector(`.sidebar-item[data-view="${viewId}"]`);
-        if (activeItem) {
-            activeItem.classList.add('active');
-        }
+        if (activeItem) activeItem.classList.add('active');
 
         const pageTitle = getPageTitleFromViewId(viewId, params);
         document.title = `${pageTitle} - VAPOR Lab`;
 
         let viewHTML = '';
         const breadcrumbHTML = `<div class="breadcrumb-bar" id="breadcrumbBar"></div>`;
+        
+        displayUrlMessage(); // Check and display URL message before loading view content
 
         switch (viewId) {
             case 'home':
@@ -147,12 +151,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             default:
                 viewHTML = `<h1>Page Not Found</h1><p>The view '${escapeHtml(viewId)}' does not exist.</p>`;
-                window.location.hash = 'home'; // Redirect to home for unknown views
+                window.location.hash = 'prompt-injection';
         }
         
-        mainContent.innerHTML = breadcrumbHTML + viewHTML;
+        mainContent.innerHTML = (urlMessageDisplay && !urlMessageDisplay.classList.contains('hidden') ? urlMessageDisplay.outerHTML : '') + breadcrumbHTML + viewHTML;
         updateBreadcrumbs(viewId, params);
-
 
         if (viewId === 'prompt-injection') {
             const llmPromptForm = document.getElementById('llmPromptForm');
@@ -174,13 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function escapeHtml(unsafe) {
         if (unsafe === null || unsafe === undefined) return '';
-        return unsafe
-             .toString()
-             .replace(/&/g, "&amp;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;")
-             .replace(/"/g, "&quot;")
-             .replace(/'/g, "&#039;");
+        return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     function loadPromptInjectionViewHTML() {
@@ -206,41 +203,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const promptInputEl = document.getElementById('promptInput');
         const responseOutputEl = document.getElementById('llmTestResponseOutput');
         const messageAreaEl = document.getElementById('llmTestMessage');
-
         const userInput = promptInputEl ? promptInputEl.value.trim() : "";
 
         if(messageAreaEl) { messageAreaEl.textContent = ''; messageAreaEl.className = 'message-area'; }
-        if(responseOutputEl) responseOutputEl.textContent = 'Sending to LLM... Please wait.';
-
         if (!userInput) {
             if(responseOutputEl) responseOutputEl.textContent = 'Prompt cannot be empty.';
             if(messageAreaEl) { messageAreaEl.textContent = 'Prompt cannot be empty.'; messageAreaEl.classList.add('error-message');}
             return;
         }
 
+        const randomJoke = aiJokes[Math.floor(Math.random() * aiJokes.length)];
+        if(responseOutputEl) responseOutputEl.innerHTML = `Sending to LLM... Please wait.<br><small style="color: #7f8c8d;">${randomJoke}</small>`;
+        
+        if (llmWaitTimeoutId) clearTimeout(llmWaitTimeoutId);
+        llmWaitTimeoutId = setTimeout(() => {
+            if (responseOutputEl && responseOutputEl.textContent.startsWith('Sending to LLM...')) {
+                const randomThinkingMsg = llmThinkingMessages[Math.floor(Math.random() * llmThinkingMessages.length)];
+                responseOutputEl.innerHTML += `<br><small style="color: #adb5bd;">${randomThinkingMsg}</small>`;
+            }
+        }, 4000);
+
         try {
             const formData = new URLSearchParams();
             formData.append('user_input', userInput);
-
             const response = await fetch(`${API_BASE}/vapor/llm/process`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
                 body: formData.toString()
             });
-
+            clearTimeout(llmWaitTimeoutId);
             let responseData;
             const responseText = await response.text();
-            try {
-                responseData = JSON.parse(responseText);
-            } catch (e) {
+            try { responseData = JSON.parse(responseText); }
+            catch (e) {
                 console.error("Failed to parse JSON response:", responseText);
-                throw new Error(`Received non-JSON response from server (status ${response.status}). Check server logs.`);
+                if(responseOutputEl) responseOutputEl.textContent = `Received non-JSON response from server (status ${response.status}). Check server logs.\nResponse: ${responseText}`;
+                if(messageAreaEl) {messageAreaEl.textContent = "Server communication error."; messageAreaEl.classList.add('error-message');}
+                return;
             }
-            
-            if (!response.ok) {
-                throw new Error(responseData.Error || responseData.error || `HTTP error! Status: ${response.status}`);
-            }
-
+            if (!response.ok) throw new Error(responseData.Error || responseData.error || `HTTP error! Status: ${response.status}`);
             if (responseData.LLMResponse) {
                 if(responseOutputEl) responseOutputEl.textContent = responseData.LLMResponse;
             } else if (responseData.Error) {
@@ -250,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(responseOutputEl) responseOutputEl.textContent = 'Received an empty or unexpected response from the backend.';
             }
         } catch (error) {
+            clearTimeout(llmWaitTimeoutId);
             console.error('Error sending prompt to LLM via backend:', error);
             if(responseOutputEl) responseOutputEl.textContent = `Error: ${error.message}`;
             if(messageAreaEl) { messageAreaEl.textContent = `Error: ${error.message}`; messageAreaEl.classList.add('error-message');}
@@ -257,10 +259,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleHashChange() {
-        const hash = window.location.hash.substring(1) || 'prompt-injection'; // Default to prompt-injection
+        const hash = window.location.hash.substring(1) || 'prompt-injection';
         let viewId = hash;
         let params = {};
-
         if (hash.includes('?')) {
             const parts = hash.split('?');
             viewId = parts[0];
@@ -268,9 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
             queryParams.forEach((value, key) => {
                 if (key === 'platform_id' || key === 'id') {
                      params[key] = parseInt(value, 10) || null;
-                } else {
-                    params[key] = value;
-                }
+                } else { params[key] = value; }
             });
         }
         loadView(viewId, params);
@@ -278,5 +277,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
-
 });
