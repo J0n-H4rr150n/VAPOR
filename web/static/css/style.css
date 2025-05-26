@@ -1,7 +1,7 @@
-/* VAPOR Lab - style.css - v1.2.1 */
+/* VAPOR Lab - style.css - v1.2.4 */
 /* Date: May 26, 2025 */
 /* Changelog:
-    - Added styles for .url-message-display for the XSS vector.
+    - Added styles for #renderedOutputContainer for LLM02 demo.
 */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -43,29 +43,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .main-content::-webkit-scrollbar-track { background: #f4f7f9; }
 .main-content::-webkit-scrollbar-thumb { background-color: #bdc3c7; border-radius: 4px; border: 2px solid #f4f7f9; }
 
-/* Styles for the URL message display (XSS vector) */
-.url-message-display {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #f0c36d; /* Warning yellow */
-    background-color: #f9f2e4; /* Light yellow */
-    color: #c09853; /* Darker yellow for text */
-    border-radius: 4px;
-    word-wrap: break-word; /* Ensure long payloads wrap */
-}
-.url-message-display.hidden {
-    display: none;
-}
+.url-message-display { padding: 10px; margin-bottom: 15px; border: 1px solid #f0c36d; background-color: #f9f2e4; color: #c09853; border-radius: 4px; word-wrap: break-word; }
+.url-message-display.hidden { display: none; }
 
-.breadcrumb-bar {
-    background-color: #f8f9fa;
-    padding: 8px 0px;
-    border-bottom: 1px solid #dee2e6;
-    font-size: 0.9em;
-    color: #495057;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
+.breadcrumb-bar { background-color: #f8f9fa; padding: 8px 0px; border-bottom: 1px solid #dee2e6; font-size: 0.9em; color: #495057; margin-bottom: 15px; border-radius: 4px; }
 .breadcrumb-item { display: inline; }
 .breadcrumb-item a { color: #007bff; text-decoration: none; }
 .breadcrumb-item a:hover { text-decoration: underline; }
@@ -76,6 +57,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .main-content h1 { margin-bottom: 15px; color: #2c3e50; font-size: 1.6em; }
 .main-content h2 { margin-top: 20px; margin-bottom: 10px; color: #34495e; font-size: 1.3em; border-bottom: 1px solid #ecf0f1; padding-bottom: 5px; }
 .main-content p { line-height: 1.6; color: #333; margin-bottom: 10px; }
+
+.main-content ol { list-style-position: inside; padding-left: 0; margin-left: 0; }
+.main-content ol > li { margin-bottom: 8px; line-height: 1.5; }
 
 table { width: 100%; border-collapse: collapse; margin-top: 15px; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ecf0f1; }
@@ -88,7 +72,10 @@ tr:hover { background-color: #e8f4fd; }
 .form-group input[type="text"],
 .form-group input[type="url"],
 .form-group input[type="number"],
-.form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.95em; box-sizing: border-box; }
+.form-group textarea,
+.form-group select { /* Added select for dropdown */
+    width: 100%; padding: 8px 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.95em; box-sizing: border-box; 
+}
 .form-group textarea { min-height: 80px; resize: vertical; }
 
 button.primary, input[type="submit"].primary { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.2s ease; }
@@ -131,3 +118,13 @@ td.platform-actions-cell, td.target-actions-cell, td.scope-actions-cell { white-
 
 #llmPromptForm textarea { min-height: 150px; font-family: monospace; width: 100%; }
 #llmTestResponseOutput { min-height: 200px; background-color: #2c3e50; color: #ecf0f1; font-family: monospace; white-space: pre-wrap; word-wrap: break-word; padding: 10px; border-radius: 4px; }
+
+/* Styles for Insecure Output Handling page */
+#renderedOutputContainer {
+    margin-top: 15px;
+    padding: 15px;
+    border: 2px dashed #e74c3c; /* Warning border */
+    background-color: #fef2f2; /* Light red background */
+    min-height: 100px;
+    word-wrap: break-word;
+}
